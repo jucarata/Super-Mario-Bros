@@ -87,7 +87,7 @@ function update(){
 
         //I split the key up cause we can press down the key up and other key at same time
         if(this.keys.up.isDown && MARIO.body.touching.down){
-            MARIO.setVelocityY(-500)
+            MARIO.setVelocityY(-550)
             MARIO.anims.play("mario-jump", true)
         }
 

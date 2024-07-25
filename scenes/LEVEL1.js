@@ -84,14 +84,19 @@ const floor = () => {
 }
 
 const mountains = () => {
-    context.add.image(0, 230, "mountain1")
+    context.add.image(0, 200, "mountain2")
+        .setOrigin(0, 0)
+        .setScale(1)
+        .setDepth(1)
+
+    context.add.image(450, 230, "mountain1")
         .setOrigin(0, 0)
         .setScale(1)
         .setDepth(1)
 }
 
 const bush = () => {
-    context.add.image(250, 250, "bush1")
+    context.add.image(350, 250, "bush1")
         .setOrigin(0, 0)
         .setScale(0.8)
         .setDepth(1)
@@ -102,7 +107,15 @@ const sky = () => {
         .setOrigin(0, 0)
         .setScale(0.15)
 
-        context.add.image(200, 10, "cloud1")
+    context.add.image(200, 10, "cloud1")
+        .setOrigin(0, 0)
+        .setScale(0.15)
+
+    context.add.image(300, 30, "cloud1")
+        .setOrigin(0, 0)
+        .setScale(0.15)
+    
+    context.add.image(400, 60, "cloud1")
         .setOrigin(0, 0)
         .setScale(0.15)
 }
