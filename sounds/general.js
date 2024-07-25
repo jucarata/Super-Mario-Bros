@@ -1,10 +1,12 @@
-const GAMEOVER = (game) => {
-    return game.sound.add("gameover")
+let SOUNDS = {}
+
+const createSounds = (game) => {
+    const maintheme = game.sound.add("main-theme")
+    const gameover = game.sound.add("gameover")
+    return SOUNDS = {
+        MAINTHEME: maintheme,
+        GAMEOVER: gameover
+    }
 }
 
-const MAIN_THEME = (game) => {
-    return game.sound.add("main-theme")
-}
-
-
-export {GAMEOVER, MAIN_THEME}
+export {createSounds}

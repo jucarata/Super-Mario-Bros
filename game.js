@@ -1,12 +1,17 @@
-import { createAnimations } from "./animations/mario-animations.js"
-import { createScenary, updateScenary} from "./scenes/overworld.js"
+import { 
+    createScenary as STARTLEVEL1,
+    updateScenary as UPDATELEVEL1
+} from "./scenes/LEVEL1.js"
+import PLAYER from "./entities/player.js"
+import { createSounds } from "./sounds/general.js"
 
-const config = {
+const CONFIG = {
     type: Phaser.AUTO,
     width: 512,
     height: 300,
     backgroundColor: "049cd8",
-    parent: "game", //Reference to div id in html
+    parent: "game",
+    STOP_GAME: false, //Reference to div id in html
     physics: {
         default: "arcade",
         arcade: {
@@ -22,11 +27,12 @@ const config = {
 }
 
 //Create the game
-new Phaser.Game(config)
+new Phaser.Game(CONFIG)
 
 //Entities
-let player = {}
-let sounds = {}
+let MARIO = {}
+let BASE_SOUNDS = {}
+let STOP_GAME = false
 
 
 function preload(){
@@ -40,74 +46,68 @@ function preload(){
     this.load.spritesheet("mario", "assets/entities/mario.png", {frameWidth: 18, frameHeight: 16})
     this.load.spritesheet("goomba", "assets/entities/overworld/goomba.png", {frameWidth: 16, frameHeight: 16})
 
+    //Audios
     this.load.audio("main-theme", "assets/sound/music/overworld/theme.mp3")
     this.load.audio("gameover", "assets/sound/music/gameover.mp3")
 }
 
 function create(){
+
+    // Create player
+    MARIO = PLAYER(this)
     
+    //Create base sounds (General sounds, not a specefic level sound)
+    BASE_SOUNDS = createSounds(this)
 
-    sounds.mainTheme = this.sound.add("main-theme")
-    sounds.gameover = this.sound.add("gameover")
-    sounds.mainTheme.play()
-
-    player.MARIO = this.physics.add.sprite(50, 100, "mario")
-        .setOrigin(0, 1)
-        .setDepth(10)
-        .setCollideWorldBounds(true)
-
-    
-    //Limits and camera
-    this.physics.world.setBounds(0, 0 , 2000, config.height)
-    
-
-    this.cameras.main.setBounds(0, 0 , 2000, config.height)
-    this.cameras.main.startFollow(player.MARIO)
-
-    createScenary(this, config, player)
-
-    // Animations
-    createAnimations(this)
+    //GENERAL CONFIG
+    this.physics.world.setBounds(0, 0 , 2000, CONFIG.height)
+    this.cameras.main.setBounds(0, 0 , 2000, CONFIG.height)
+    this.cameras.main.startFollow(MARIO)
 
     this.keys = this.input.keyboard.createCursorKeys()
+    STARTLEVEL1(this, CONFIG, MARIO, BASE_SOUNDS, STOP_GAME)
 }
 
 function update(){
-   if(player.MARIO.isDead){return}
-    
-   if(this.keys.left.isDown){
-        player.MARIO.anims.play("mario-walk", true)
-        player.MARIO.x -= 2
-        player.MARIO.flipX = true
-   } else if(this.keys.right.isDown){
-        player.MARIO.anims.play("mario-walk", true)
-        player.MARIO.x += 2
-        player.MARIO.flipX = false
-   } else if(this.keys.down.isDown){
-        player.MARIO.y += 2
-   } else{player.MARIO.anims.play("mario-idle", true)}
+    if(!CONFIG.STOP_GAME){
+        UPDATELEVEL1()
+        if(MARIO.isDead){return}
+            
+        if(this.keys.left.isDown){
+            MARIO.anims.play("mario-walk", true)
+            MARIO.x -= 2
+            MARIO.flipX = true
+        } else if(this.keys.right.isDown){
+            MARIO.anims.play("mario-walk", true)
+            MARIO.x += 2
+            MARIO.flipX = false
+        } else if(this.keys.down.isDown){
+            MARIO.y += 2
+        } else{MARIO.anims.play("mario-idle", true)}
 
-   //I split the key up cause we can press down the key up and other key at same time
-   if(this.keys.up.isDown && player.MARIO.body.touching.down){
-        player.MARIO.anims.play("mario-jump", true)
-        player.MARIO.setVelocityY(-400)
-   }
+        //I split the key up cause we can press down the key up and other key at same time
+        if(this.keys.up.isDown && MARIO.body.touching.down){
+            MARIO.setVelocityY(-500)
+            MARIO.anims.play("mario-jump", true)
+        }
 
-   if(player.MARIO.y >= config.height){
-        sounds.mainTheme.stop()
-        player.MARIO.isDead = true
-        player.MARIO.anims.play("mario-dead", true)
-        player.MARIO.setCollideWorldBounds(false)
-        sounds.gameover.play()
+        if(MARIO.y >= CONFIG.height){
+            BASE_SOUNDS.MAINTHEME.stop()
+            MARIO.isDead = true
+            MARIO.anims.play("mario-dead", true)
+            MARIO.setCollideWorldBounds(false)
+            BASE_SOUNDS.GAMEOVER.play()
 
-        setTimeout(() => {
-            player.MARIO.setVelocityY(-400)
-        }, 100)
+            setTimeout(() => {
+                MARIO.setVelocityY(-600)
+            }, 100)
 
-        setTimeout(() => {
-            sounds.gameover.stop()
-            this.scene.restart()
-        }, 2500)
-        
-   }
+            setTimeout(() => {
+                BASE_SOUNDS.GAMEOVER.stop()
+                this.scene.restart()
+            }, 2500)
+        }
+    } else {
+        return
+    }
 }
